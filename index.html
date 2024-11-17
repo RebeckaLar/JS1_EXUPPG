@@ -11,15 +11,22 @@
     <nav>
         <h1>Javascript 1: Examinerande inlämningsuppgift</h1>
         <h2>Rebecka Larsson</h2>
-        <button class="m-2" id="btnCreate">Create to-do</button>
         <button class="m-2">Update to-do</button>
-        <button class="m-2" id="btnDelete">Delete to-do</button>
     </nav>
     <main>
         <form id="createForm">
             <div class="input-group">
-                <label for="title">Title: </label>
-                <input type="text" id="title" class="form-input m-2">
+                <label for="title">Add (title): </label>
+                <input type="text" id="title" name="title" class="form-input m-2">
+                <button type="submit" class="m-2" id="btnCreate">Create to-do</button>
+                <p class="error">Error message</p>
+            </div>
+        </form>
+        <form id="searchForm">
+            <div class="input-group">
+                <label for="search">Delete (title): </label>
+                <input type="search" name="search" id="search" class="form-input m-2">
+                <button class="m-2" id="btnDelete">Delete to-do</button>
                 <p class="error">Error message</p>
             </div>
         </form>

@@ -1,39 +1,28 @@
-let post = {
-    'title' : 'string2'
-}
-
+//Array som hämtar alla data från arrayen i API:et. Används för att kunna display
 const posts = [];
-
-// //Array som hämtar alla data från arrayen i API:et. Används för att kunna display
-// const posts = Object.values(person)
 
 //Funktion med kod från Joakim Lindh, 2024. Hämtad från YouTube, LindhCoding.
 const getAllTodos = async() => {
     let url = 'https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c';
 
     try {
-        const result = await fetch (url);
-        console.log(result);
+        const response = await fetch (url);
+        console.log(response);
 
-        if(result.status !== 200) {
+        if(response.status !== 200) {
             throw new Error ('Something went wrong.');
         }
 
-        const data = await result.json()
-
-        //Array som hämtar alla data från arrayen i API:et. Används för att kunna display
-        // posts = Object.values(data);
+        const data = await response.json()
 
         data.forEach(post => posts.push(post));
-        // addItem(data);
         addToPosts3();
-        addToPosts4();
-        // displayPosts1();
-        // displayPosts2();
+        addToPosts4(); //liknar renderPosts()
         //Arrayen med data från API:et
         console.log(data);
         //Egen array posts []
         console.log(posts);
+        // checkTitle();
 
     } catch (err) {
         console.log(err.message);
@@ -41,26 +30,8 @@ const getAllTodos = async() => {
 }
 getAllTodos();
 
-// function addItem() {
-//     const list = document.createElement('li');
-//     const item = document.createTextNode(post.title + " ");
-//     list.appendChild(item);
-//     document.getElementById('list1').append(item);
-// }
-
 //Adderar to-dos från API:ets array till egen array posts []
-// function addToPosts1() {
-//     let list = document.getElementById('list1');
-//     for(let i=0;  i < posts.length; i++) {
-//         let li = document.createElement('li');
-
-//         // list.innerHTML = posts[i];
-//         list.appendChild(li);
-//     }
-//     // displayPosts1();
-// }
-
-function addToPosts3() {
+function addToPosts3() { //liknar renderPosts()
     let list = document.getElementById('list1');
     posts.forEach(para => {
         let li = document.createElement('li');
@@ -70,7 +41,7 @@ function addToPosts3() {
 }
 
 //posts.forEach(parameter motsvarar varje objekt i arrayen)
-function addToPosts4() {
+function addToPosts4() { //1:26:00
     let list = document.getElementById('list2');
     posts.forEach(para => {
         let li = document.createElement('li');
@@ -79,42 +50,34 @@ function addToPosts4() {
     })
 }
 
-// function addToPosts2() {
-//     let list = document.getElementById('list2');
-//     for(let i=0;  i < posts.length; i++) {
-//         let li = document.createElement('li');
-//         // list.innerHTML = posts[i];
-//         list.appendChild(li);
-//     }
-//     // displayPosts2();
-// }
+// let post = document.getElementById('search').value;
 
-// function displayPosts() {
-//     let text = '';
-//     for(let i in posts) {
-//         text += posts[i] + ' ';
-//     }
-//     document.getElementById('list2').innerHTML = text;
-// }
+let post = {
+    'title' : 'To-do 10'
+}
 
-// function displayPosts() {
-//     let myString = JSON.stringify(posts);
-//     document.getElementById('list2').innerHTML = myString;
-// }
+// const createTodo = () => {
+//     // let post = document.getElementById('search').value;
 
-// function displayPosts1() {
-//     let myString = Object.keys(posts);
-//     document.getElementById('list1').innerHTML = myString;
-// }
+//     // title.setAttribute('value', post);
+//     // console.log('attribute post.title till value');
+//     // list.appendChild(title);
 
+//     const list = document.getElementById('list2');
+//     const title = document.getElementById('title').value;
 
-// function displayPosts2() {
-//     let keys = Object.values(posts);
-//     document.getElementById('list2').innerHTML = keys;
+//     let li = document.createElement('li');
+//     list.appendChild(li);
+//     li.innerText = title;
+//     // console.log(li);
+    
+//     postTodo(title);
 // }
 
 //Triggas vid klick på knappen Create to-do
 const postTodo = () => {
+    // const bla = post._id;
+    console.log('bla = post._id;')
     fetch('https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c', {
         method: 'POST',
         body : JSON.stringify(post),
@@ -122,49 +85,58 @@ const postTodo = () => {
             'Content-Type' : 'application/json' 
         }
     })
-        .then(result => {
+        .then(response => {
+            console.log('efter fetch')
             if(Response.status = 201) {
                 console.log('Status 201, to-do created');
             } 
-            console.log(result);
-            return result.json();
+            console.log(response)
+            // li.innerText = post;
+            return response.json();
         })
-        .then(data => {
-            console.log(data);
-            // addItem(post);
-            // return data;
-        })
-        .catch(err => {
-            console.log(err);
-        })
+        .then(data => console.log(data))
+        .catch(err => console.log(err));
+        window.location.reload(false);
 }
 
 const btnCreate = document.getElementById('btnCreate');
 btnCreate.addEventListener('click', (e) => {
     e.preventDefault();
     postTodo();
+    // console.log('before createTodo()')
+    // createTodo();
+    // window.location.reload(false);
 })
 
-
-const id = '67372592cd3c44cd4dd28f31';
-const removeTodo = async () => {
-    const result = await fetch(`https://js1-todo-api.vercel.app/api/todos/${id}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
-        method: 'DELETE',
-    })
-
-    if(result.status !== 200) {
-        throw new Error ('Something went wrong.');
-    }
-    console.log(result);
-
-    const data = await result.json();
-    console.log('Deleted todo with id:' + data);
-    return data;
-}
-// //ANVÄND WINDOW.LOCATION.RELOAD
 
 const btnDelete = document.getElementById('btnDelete');
 btnDelete.addEventListener('click', (e) => {
     e.preventDefault();
-    removeTodo();
+    const item = document.getElementById('search').value;
+    console.log('Removing ' + item);
+    posts.filter(obj => {
+        if (obj.title == item) {
+            console.log(obj.title);
+            removeTodo(obj);
+            return;
+        } else {
+            console.log('Does not match any To-do title. Try again');
+        }
+    })
 })
+
+const removeTodo = async (id) => {
+    const bla = id._id;
+    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${bla}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
+        method: 'DELETE',
+    })
+
+    if(response.status !== 200) {
+        throw new Error ('Something went wrong.');
+    }
+    console.log(response);
+    const data = await response.json();
+    console.log('Deleted todo with id:' + data);
+    window.location.reload(false);
+    return data;
+}
