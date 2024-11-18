@@ -12,17 +12,16 @@ const getAllTodos = async() => {
         if(response.status !== 200) {
             throw new Error ('Something went wrong.');
         }
-
         const data = await response.json()
 
         data.forEach(post => posts.push(post));
-        addToPosts3();
-        addToPosts4(); //liknar renderPosts()
+        addToPosts(); //liknar renderPosts()
+
         //Arrayen med data från API:et
         console.log(data);
+
         //Egen array posts []
         console.log(posts);
-        // checkTitle();
 
     } catch (err) {
         console.log(err.message);
@@ -31,81 +30,91 @@ const getAllTodos = async() => {
 getAllTodos();
 
 //Adderar to-dos från API:ets array till egen array posts []
-function addToPosts3() { //liknar renderPosts()
+function addToPosts() { //liknar renderPosts()
     let list = document.getElementById('list1');
-    posts.forEach(para => {
+    posts.forEach(obj => {
         let li = document.createElement('li');
         list.appendChild(li);
-        li.innerText = para.title;
+        li.innerText = obj.title;
     })
 }
 
-//posts.forEach(parameter motsvarar varje objekt i arrayen)
-function addToPosts4() { //1:26:00
-    let list = document.getElementById('list2');
-    posts.forEach(para => {
-        let li = document.createElement('li');
-        list.appendChild(li);
-        li.innerText = para.title;
-    })
-}
+const createTodo = () => {
+    const list = document.getElementById('list1');
+    const title = document.getElementById('title').value;
 
-// let post = document.getElementById('search').value;
-
-let post = {
-    'title' : 'To-do 10'
-}
-
-// const createTodo = () => {
-//     // let post = document.getElementById('search').value;
-
-//     // title.setAttribute('value', post);
-//     // console.log('attribute post.title till value');
-//     // list.appendChild(title);
-
-//     const list = document.getElementById('list2');
-//     const title = document.getElementById('title').value;
-
-//     let li = document.createElement('li');
-//     list.appendChild(li);
-//     li.innerText = title;
-//     // console.log(li);
+    let li = document.createElement('li');
+    list.appendChild(li);
+    li.innerText = title;
     
-//     postTodo(title);
+    console.log('createTodo() done. Title value is ' + title);
+    const objTitle = title;
+    postTodo(objTitle);
+    
+}
+
+// const postTodo = () => {
+//     // createTodo();
+//     fetch('https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c', {
+//         method: 'POST',
+//         body : JSON.stringify(post),
+//         headers: {
+//             'Content-Type' : 'application/json' 
+//         }
+//     })
+//         .then(result => {
+//             if(Response.status = 201) {
+//                 // createTodo();
+//                 console.log('Status 201, to-do created');
+//             } 
+//             console.log(result);
+//             return result.json();
+//         })
+//         .then(data => console.log(data))
+//         .catch(err => console.log(err));
 // }
 
 //Triggas vid klick på knappen Create to-do
-const postTodo = () => {
-    // const bla = post._id;
-    console.log('bla = post._id;')
-    fetch('https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c', {
+const postTodo = async (objTitle) => {
+    let post = {
+        title : objTitle
+    }
+    const url = 'https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c';
+
+        const response = await fetch(url, {
         method: 'POST',
-        body : JSON.stringify(post),
         headers: {
             'Content-Type' : 'application/json' 
-        }
+        },
+        body : JSON.stringify(post)
     })
-        .then(response => {
-            console.log('efter fetch')
-            if(Response.status = 201) {
-                console.log('Status 201, to-do created');
-            } 
-            console.log(response)
-            // li.innerText = post;
-            return response.json();
-        })
-        .then(data => console.log(data))
-        .catch(err => console.log(err));
-        window.location.reload(false);
-}
+        console.log(response);
+
+        if(response.status == 201) {
+            console.log('Status 201, to-do created');
+        } else {
+            throw new Error ('Something went wrong.');
+        }
+        const data = await response.json()
+        return data;
+    }
+
+//från https://stackoverflow.com/questions/78245676/nextjs-post-neterr-aborted-500-internal-server-error
+// You have to always return a Response by:
+// return new Response("message", {status: 200})
+// return new NextResponse("message", {status: 200})
+// return Response.json({...}, {status: 200})
+// return NextResponse.json({...}, {status: 200})
 
 const btnCreate = document.getElementById('btnCreate');
 btnCreate.addEventListener('click', (e) => {
     e.preventDefault();
-    postTodo();
-    // console.log('before createTodo()')
-    // createTodo();
-    // window.location.reload(false);
+    const item = document.getElementById('title').value;
+    if (item == '' || item == null) {
+        console.log('Please write a title');
+    } else {
+        createTodo();
+    }
 })
 
 
@@ -114,6 +123,7 @@ btnDelete.addEventListener('click', (e) => {
     e.preventDefault();
     const item = document.getElementById('search').value;
     console.log('Removing ' + item);
+
     posts.filter(obj => {
         if (obj.title == item) {
             console.log(obj.title);
