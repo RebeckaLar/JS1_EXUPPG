@@ -1,7 +1,87 @@
-
 //Array som hämtar alla data från arrayen i API:et. Används för att kunna display
 const posts = [];
 
+// -----EVENT LISTENERS-----
+const btnCreate = document.getElementById('btnCreate');
+btnCreate.addEventListener('click', (e) => {
+    e.preventDefault();
+    validateInput();
+})
+
+
+const btnDelete = document.getElementById('btnDelete');
+btnDelete.addEventListener('click', (e) => {
+    e.preventDefault();
+    validateSearch();
+})
+
+// function renderPosts2() {
+//     let list = document.getElementById('list1');
+//     posts.forEach(obj => {
+//         let li = document.createElement('li');
+//         list.appendChild(li);
+//         li.innerText = obj.title;
+//     })
+// }
+
+// -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
+// //För eventuell PUT
+//Adderar objekt (to-do's) från API:ets array till egen array Posts[] och visar på hemsidan
+function renderPosts() {
+    let list = document.getElementById('list1');
+    posts.forEach(obj => {
+        let div = document.createElement('div');
+        let label = document.createElement('label')
+        let item = document.createElement('input');
+
+        label.setAttribute("for", "flexCheckDefault");
+        item.setAttribute("id", "flexCheckDefault");
+        item.setAttribute("type", "checkbox");
+        item.setAttribute("class", "form-check-input");
+
+        list.appendChild(div);
+        div.appendChild(label);
+        div.appendChild(item);
+        label.innerText = obj.title;
+    })
+}
+
+// const createTodo2 = () => {
+//     const list = document.getElementById('list1');
+//     const title = document.getElementById('title').value;
+
+//     let li = document.createElement('li');
+//     list.appendChild(li);
+//     li.innerText = title;
+    
+//     console.log('createTodo() done. Title value is ' + title);
+//     postTodo(title);
+// }
+
+//För eventuell PUT
+const createTodo = () => {
+    const list = document.getElementById('list1');
+    const title = document.getElementById('title').value;
+
+    let div = document.createElement('div');
+    let label = document.createElement('label')
+    let item = document.createElement('input');
+
+    label.setAttribute("for", "flexCheckDefault");
+    item.setAttribute("id", "flexCheckDefault");
+    item.setAttribute("type", "checkbox");
+    item.setAttribute("class", "form-check-input");
+
+    list.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(item);
+    label.innerText = title;
+    
+    console.log('createTodo() done. Title value is ' + title);
+    postTodo(title);
+}
+
+// -----HTTP METODER-----
 //Funktion med kod från Joakim Lindh, 2024. Hämtad från YouTube, LindhCoding.
 const getAllTodos = async() => {
     let url = 'https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c';
@@ -10,13 +90,15 @@ const getAllTodos = async() => {
         const response = await fetch (url);
         console.log(response);
 
-        if(response.status !== 200) {
+        if(response.status == 200) {
+            console.log('Status 201, to-do created');
+        } else {
             throw new Error ('Something went wrong.');
         }
         const data = await response.json()
 
         data.forEach(post => posts.push(post));
-        addToPosts();
+        renderPosts();
 
         //Arrayen med data från API:et
         console.log(data);
@@ -30,61 +112,7 @@ const getAllTodos = async() => {
 }
 getAllTodos();
 
-//Adderar objekt (to-do's) från API:ets array till egen array Posts och visar på hemsidan[]
-function addToPosts() {
-    let list = document.getElementById('list1');
-    posts.forEach(obj => {
-        let li = document.createElement('li');
-        list.appendChild(li);
-        li.innerText = obj.title;
-    })
-}
-
-// //För eventuell PUT
-// function addToPosts() {
-//     let list = document.getElementById('list1');
-//     posts.forEach(obj => {
-//         let div = document.createElement('div');
-//         list.appendChild(div);
-//         let label = document.createElement('label')
-//         let item = document.createElement('input');
-//         label.setAttribute("for", "flexCheckDefault");
-//         item.setAttribute("id", "flexCheckDefault");
-//         item.setAttribute("type", "checkbox");
-//         item.setAttribute("class", "form-check-input");
-//         div.appendChild(label);
-//         div.appendChild(item);
-//         label.innerText = obj.title;
-//     })
-// }
-
-const createTodo = () => {
-    const list = document.getElementById('list1');
-    const title = document.getElementById('title').value;
-
-    let li = document.createElement('li');
-    list.appendChild(li);
-    li.innerText = title;
-    
-    console.log('createTodo() done. Title value is ' + title);
-    postTodo(title);
-}
-
-//För eventuell PUT
-// const createTodo = () => {
-//     const list = document.getElementById('list1');
-//     const title = document.getElementById('title').value;
-
-//     let item = document.createElement('input');
-//     item.setAttribute("type", "checkbox");
-//     list.appendChild(item);
-//     item.innerText = title;
-    
-//     console.log('createTodo() done. Title value is ' + title);
-//     postTodo(title);
-// }
-
-//Triggas vid klick på knappen Create to-do
+//Triggas efter genomfört validateInput();
 const postTodo = async (objTitle) => {
     let post = {
         title : objTitle
@@ -109,6 +137,22 @@ const postTodo = async (objTitle) => {
         return data;
     }
 
+const removeTodo = async (id) => {
+    const bla = id._id;
+    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${bla}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
+        method: 'DELETE',
+    })
+
+    if(response.status !== 200) {
+        throw new Error ('Something went wrong.');
+    }
+    console.log(response);
+    const data = await response.json();
+    console.log('Deleted todo with id:' + data);
+    window.location.reload();
+    return data;
+}
+
 //från https://stackoverflow.com/questions/78245676/nextjs-post-neterr-aborted-500-internal-server-error
 // You have to always return a Response by:
 // return new Response("message", {status: 200})
@@ -116,19 +160,9 @@ const postTodo = async (objTitle) => {
 // return Response.json({...}, {status: 200})
 // return NextResponse.json({...}, {status: 200})
 
-const btnCreate = document.getElementById('btnCreate');
-btnCreate.addEventListener('click', (e) => {
-    e.preventDefault();
-    validateInput();
-})
 
-
-const btnDelete = document.getElementById('btnDelete');
-btnDelete.addEventListener('click', (e) => {
-    e.preventDefault();
-    validateSearch();
-})
-
+// ----VALIDERING----
+//Triggas vid klick på knappen Create to-do
 const validateInput = () => {
     console.log('validateInput()');
     const title = document.getElementById('title');
@@ -141,17 +175,7 @@ const validateInput = () => {
     }
 }
 
-// const validateSearch2 = () => {
-//     console.log('validateSearch()');
-//     const title = document.getElementById('title');
-
-//     if(title.value === '' || title.length < 0 || title == null) {
-//         addErrorDeleteTodo();
-//     } else {
-//         removeTodo();
-//     }
-// }
-
+//Triggas vid klick på knappen Delete to-do
 const validateSearch = () => {
     console.log('validateSearch()');
     const search = document.getElementById('search').value;
@@ -215,21 +239,4 @@ const removeErrorDeleteTodo = () => {
     form.classList.remove('error');
     return;
 }
-
-const removeTodo = async (id) => {
-    const bla = id._id;
-    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${bla}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
-        method: 'DELETE',
-    })
-
-    if(response.status !== 200) {
-        throw new Error ('Something went wrong.');
-    }
-    console.log(response);
-    const data = await response.json();
-    console.log('Deleted todo with id:' + data);
-    window.location.reload();
-    return data;
-}
-
 //Valideringvideon del 1 19:30
