@@ -8,12 +8,28 @@ nav {
 
 button {
     border-radius: var(--bs-border-radius-lg);
+    
 }
 
-.post {
+input[type="checkbox"] {
+    appearance: none;
+}
+
+.wrapper {
     background-color: var(--bs-pink);
 }
 
-li {
-    
+.invalid-input {
+    display: none;
+}
+
+.error {
+    .invalid-input {
+        display: block;
+        color: firebrick;
+    }
+
+    .form-input {
+        border: 1px solid firebrick;
+    }
 }
