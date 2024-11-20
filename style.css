@@ -2,23 +2,30 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-nav {
+header {
     background-color: var(--bs-gray-500);
 }
-
+/* 
 button {
     border-radius: var(--bs-border-radius-lg);
     
-}
+} */
 
 input[type="checkbox"] {
-    appearance: none;
+    /* appearance: none; */
+    background-color: lightblue;
 }
+
+
+input:checked {
+    outline: 1px solid green;
+  }
 
 .wrapper {
     background-color: var(--bs-pink);
 }
 
+/* Joakim Lindh 2024 */
 .invalid-input {
     display: none;
 }

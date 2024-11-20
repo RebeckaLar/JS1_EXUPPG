@@ -9,36 +9,16 @@
     <title>JS 1 Examinationsuppgift</title>
 </head>
 <body>
-    <nav class="p-2">
+    <header class="p-2">
         <h1>Javascript 1: Examinerande inlämningsuppgift</h1>
         <h2>Rebecka Larsson</h2>
-    </nav>
-    <main>
-        <form id="form" class="p-2">
-            <div class="input-group d-flex" id="createTodo">
-                <label for="title" class="m-2">Add (title):</label>
-                <input type="text" id="title" name="title" class="form-input m-2">
-                <button type="submit" class="m-2" id="btnCreate">Create to-do</button>
-                <p class="invalid-input">Title is required</p>
-            </div>
-            <div class="input-group d-flex" id="deleteTodo">
-                <label for="search" class="m-2">Delete (title):</label>
-                <input type="search" name="search" id="search" class="form-input m-2">
-                <button class="m-2" id="btnDelete">Delete to-do</button>
-                <p class="invalid-input">Title does not match any existing to-do</p>
-            </div>
-        </form>
-        <div class="wrapper p-2">
+    </header>
+    <main class="container-xl d-flex">
+        <div class="wrapper p-2 card">
             <h3>To-do:</h3>
-            <!-- <div class="checkboxes form-check-input">
-                <input type="checkbox">
-            </div> -->
-            <div class="posts">
-                <div class="post d-flex">
-                    <!-- <form class="checkboxes form-check-input">
-                        <input type="checkbox">
-                    </form> -->
-                    <ul id="list1" class="form-check">
+            <div class="posts p-2 card">
+                <div class="post">
+                    <ul id="list1" class="form-check p-4 list-inline">
                     </ul>
                 </div>
             </div>
@@ -56,6 +36,24 @@
                 </label>
               </div> -->
         </div>
+        <form id="form" class="p-2">
+            <div class="input-group d-flex flex-column" id="createTodo">
+                <label for="title" class="m-2">Add (title):</label>
+                <input type="text" id="title" name="title" class="form-input m-2">
+                <!-- <button type="button" class="m-2 btn-primary" id="btnCreate">Create to-do</button> -->
+                <p class="invalid-input">Title is required</p>
+            </div>
+            <button type="button" class="m-2 btn btn-primary" id="btnCreate">Create to-do</button>
+
+            <div class="input-group d-flex flex-column" id="deleteTodo">
+                <label for="search" class="m-2">Delete (title):</label>
+                <input type="search" name="search" id="search" class="form-input m-2">
+                <!-- <button class="m-2" id="btnDelete">Delete to-do</button> -->
+                <p class="invalid-input">Title does not match any existing to-do</p>
+            </div>
+            <button type="button" class="m-2 btn btn-primary" id="btnDelete">Delete to-do</button>
+
+        </form>
     </main>
     <!-- <script src="bootstrap-5.3.3-dist/js/bootstrap.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

@@ -1,5 +1,7 @@
 //Array som hämtar alla data från arrayen i API:et. Används för att kunna display
 const posts = [];
+//Array innehållande ifyllda checkboxar (completed to-dos)
+let completedTodos = [];
 
 // -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
 //Adderar objekt (to-do's) från API:ets array till egen array Posts[] och visar på hemsidan
@@ -13,7 +15,6 @@ function renderPosts() {
         div.setAttribute("class", "form-check-div");
         label.setAttribute("for", "flexCheckDefault");
         item.setAttribute("type", "checkbox");
-        // item.setAttribute("id", "flexCheckDefault");
         item.setAttribute("id", obj._id);
         item.setAttribute("class", "form-check-input");
 
@@ -21,71 +22,32 @@ function renderPosts() {
         div.appendChild(label);
         div.appendChild(item);
         label.innerText = obj.title;
-
-        // if(obj.completed == true) {
-        //     // var checkboxes = document.querySelectorAll("input[type=checkbox]");
-        //     // console.log(checkboxes)
-        //     var checkbox = document.querySelectorAll(".form-check-input");
-        //     console.log(checkbox);
-
-        //     // document.getElementsByTagName('input').checked = true;
-
-        //     // checkboxes.checked = true;
-        //     checkbox.checked = true;
-        //     console.log('completed true=');
-        //     obj.checked = true;
-        //     return checkbox;
-
-            // check();
-        //     // console.log('kör check() strax...');
-        // }
     })
 }
 
-function check(obj) {
-    console.log('1');
+function check() {
+    console.log('Checking completed to-dos...');
     var checkboxes = document.querySelectorAll("input[type=checkbox]");
-    var checkbox = document.querySelectorAll(".form-check-input");
-    // document.getElementById(obj._id).checked = true;
 
-    if(obj.completed == true) {
-        // var checkbox = document.querySelectorAll("input[type=checkbox]");
-        // console.log(checkboxes)
-        console.log(checkbox);
-
-        // document.getElementsByTagName('input').checked = true;
-
-        // checkboxes.checked = true;
-        checkbox.checked = true;
-        console.log('completed true=');
-        obj.checked = true;
-        return checkbox;
-        
-        // check();
-        // console.log('kör check() strax...');
-    }
-  }
-
-// function renderPosts2() {
-//     let list = document.getElementById('list1');
-//     posts.forEach(obj => {
-//         let li = document.createElement('li');
-//         list.appendChild(li);
-//         li.innerText = obj.title;
-//     })
-// }
-
-// const createTodo2 = () => {
-//     const list = document.getElementById('list1');
-//     const title = document.getElementById('title').value;
-
-//     let li = document.createElement('li');
-//     list.appendChild(li);
-//     li.innerText = title;
-    
-//     console.log('createTodo() done. Title value is ' + title);
-//     postTodo(title);
-// }
+            posts.forEach(obj => {
+                    if(obj.completed == true) {
+                    document.getElementById(obj._id).checked= true;
+                        completedTodos = 
+                          Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+                          .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
+                          .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
+                          
+                } else if (obj.completed !=true) {
+                    document.getElementById(obj._id).checked= false;
+                    completedTodos = 
+                          Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+                          .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
+                          .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
+                }
+            })
+            console.log('Completed / checked to-dos: ' + completedTodos.length);
+            console.log('Completed to-dos successfully displayed');
+        }
 
 const createTodo = (obj) => {
     const list = document.getElementById('list1');
@@ -98,8 +60,7 @@ const createTodo = (obj) => {
     div.setAttribute("class", "form-check-div");
     label.setAttribute("for", "flexCheckDefault");
     item.setAttribute("type", "checkbox");
-    // item.setAttribute("id", "flexCheckDefault");
-    item.setAttribute("id", obj._id);
+    item.setAttribute("id", obj);
     item.setAttribute("class", "form-check-input");
 
     list.appendChild(div);
@@ -109,10 +70,6 @@ const createTodo = (obj) => {
     
     console.log('createTodo() done. Title value is ' + title);
     postTodo(title);
-
-    // function updateCheckbox() {
-
-// }
 }
 
 // -----HTTP METODER-----
@@ -173,14 +130,11 @@ const postTodo = async (objTitle) => {
 
 const updateTodo = async (obj) => {
     let post = {
-        completed: true
+        completed: obj.checked
     }
-    console.log(post);
-    console.log(obj);
-    let bla = obj.id;
-    console.log(bla)
+    let todo = obj.id;
 
-        const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${bla}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
+        const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${todo}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
         method: 'PUT',
         headers: {
             'Content-Type' : 'application/json' 
@@ -188,22 +142,23 @@ const updateTodo = async (obj) => {
         body : JSON.stringify(post)
     })
         console.log(response);
-
         if(response.status == 200) {
-            // obj.checked = true;
-            // document.getElementById(bla).checked = true;
-            // document.getElementsByTagName('input').checked = true;
             console.log('Status 200, to-do updated');
-        } else {
-            throw new Error ('Something went wrong.');
-        }
+            if(post.completed != true) {
+                console.log('To-do with id ' + todo + ' completed == false');
+            } else if (post.completed == true) {
+                console.log('To-do with id ' + todo + ' completed == true');
+            }
+            } else {
+                throw new Error ('Something went wrong.');
+            }
         const data = await response.json()
         return data;
     }
 
-const removeTodo = async (id) => {
-    const obj = id._id;
-    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${obj}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
+const removeTodo = async (obj) => {
+    const todo = obj._id;
+    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${todo}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
         method: 'DELETE',
     })
 
@@ -241,7 +196,7 @@ function listenIfChecked() {
 // Select all checkboxes with the name 'settings' using querySelectorAll.
 var checkboxes = document.querySelectorAll("input[type=checkbox]");
 (console.log(checkboxes));
-let completedTodos = []
+// let completedTodos = []
 
 /*
 For IE11 support, replace arrow functions with normal functions and
@@ -257,10 +212,12 @@ https://vanillajstoolkit.com/polyfills/arrayforeach/
             .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
             .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
             
-          console.log(completedTodos);
+        console.log('Completed / checked to-dos: ' + completedTodos.length);
           updateTodo(checkbox);
+          
         })  
       });
+      check();
 }
 
 // -----VALIDERING-----
@@ -307,18 +264,6 @@ const validateSearch = () => {
         addErrorDeleteTodo();
     }
 }
-
-// const addErrorMessage = () => {
-//     const form = document.getElementById('form');
-//     const errMessage = 'Please write a title';
-//     const title = document.getElementById('title');
-//     let p = document.createElement('p');
-    
-//     form.appendChild(p);
-//     p.innerText = errMessage;
-//     title.classList.add('error');
-//     return;
-// }
 
 const addErrorCreateTodo = () => {
     console.log('addErrorCreateTodo()');
