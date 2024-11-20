@@ -1,19 +1,70 @@
 //Array som hämtar alla data från arrayen i API:et. Används för att kunna display
 const posts = [];
 
-// -----EVENT LISTENERS-----
-const btnCreate = document.getElementById('btnCreate');
-btnCreate.addEventListener('click', (e) => {
-    e.preventDefault();
-    validateInput();
-})
+// -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
+//Adderar objekt (to-do's) från API:ets array till egen array Posts[] och visar på hemsidan
+function renderPosts() {
+    let list = document.getElementById('list1');
+    posts.forEach(obj => {
+        let div = document.createElement('div');
+        let label = document.createElement('label')
+        let item = document.createElement('input');
 
+        div.setAttribute("class", "form-check-div");
+        label.setAttribute("for", "flexCheckDefault");
+        item.setAttribute("type", "checkbox");
+        // item.setAttribute("id", "flexCheckDefault");
+        item.setAttribute("id", obj._id);
+        item.setAttribute("class", "form-check-input");
 
-const btnDelete = document.getElementById('btnDelete');
-btnDelete.addEventListener('click', (e) => {
-    e.preventDefault();
-    validateSearch();
-})
+        list.appendChild(div);
+        div.appendChild(label);
+        div.appendChild(item);
+        label.innerText = obj.title;
+
+        // if(obj.completed == true) {
+        //     // var checkboxes = document.querySelectorAll("input[type=checkbox]");
+        //     // console.log(checkboxes)
+        //     var checkbox = document.querySelectorAll(".form-check-input");
+        //     console.log(checkbox);
+
+        //     // document.getElementsByTagName('input').checked = true;
+
+        //     // checkboxes.checked = true;
+        //     checkbox.checked = true;
+        //     console.log('completed true=');
+        //     obj.checked = true;
+        //     return checkbox;
+
+            // check();
+        //     // console.log('kör check() strax...');
+        // }
+    })
+}
+
+function check(obj) {
+    console.log('1');
+    var checkboxes = document.querySelectorAll("input[type=checkbox]");
+    var checkbox = document.querySelectorAll(".form-check-input");
+    // document.getElementById(obj._id).checked = true;
+
+    if(obj.completed == true) {
+        // var checkbox = document.querySelectorAll("input[type=checkbox]");
+        // console.log(checkboxes)
+        console.log(checkbox);
+
+        // document.getElementsByTagName('input').checked = true;
+
+        // checkboxes.checked = true;
+        checkbox.checked = true;
+        console.log('completed true=');
+        obj.checked = true;
+        return checkbox;
+        
+        // check();
+        // console.log('kör check() strax...');
+    }
+  }
 
 // function renderPosts2() {
 //     let list = document.getElementById('list1');
@@ -23,28 +74,6 @@ btnDelete.addEventListener('click', (e) => {
 //         li.innerText = obj.title;
 //     })
 // }
-
-// -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
-// //För eventuell PUT
-//Adderar objekt (to-do's) från API:ets array till egen array Posts[] och visar på hemsidan
-function renderPosts() {
-    let list = document.getElementById('list1');
-    posts.forEach(obj => {
-        let div = document.createElement('div');
-        let label = document.createElement('label')
-        let item = document.createElement('input');
-
-        label.setAttribute("for", "flexCheckDefault");
-        item.setAttribute("id", "flexCheckDefault");
-        item.setAttribute("type", "checkbox");
-        item.setAttribute("class", "form-check-input");
-
-        list.appendChild(div);
-        div.appendChild(label);
-        div.appendChild(item);
-        label.innerText = obj.title;
-    })
-}
 
 // const createTodo2 = () => {
 //     const list = document.getElementById('list1');
@@ -58,8 +87,7 @@ function renderPosts() {
 //     postTodo(title);
 // }
 
-//För eventuell PUT
-const createTodo = () => {
+const createTodo = (obj) => {
     const list = document.getElementById('list1');
     const title = document.getElementById('title').value;
 
@@ -67,9 +95,11 @@ const createTodo = () => {
     let label = document.createElement('label')
     let item = document.createElement('input');
 
+    div.setAttribute("class", "form-check-div");
     label.setAttribute("for", "flexCheckDefault");
-    item.setAttribute("id", "flexCheckDefault");
     item.setAttribute("type", "checkbox");
+    // item.setAttribute("id", "flexCheckDefault");
+    item.setAttribute("id", obj._id);
     item.setAttribute("class", "form-check-input");
 
     list.appendChild(div);
@@ -79,19 +109,23 @@ const createTodo = () => {
     
     console.log('createTodo() done. Title value is ' + title);
     postTodo(title);
+
+    // function updateCheckbox() {
+
+// }
 }
 
 // -----HTTP METODER-----
 //Funktion med kod från Joakim Lindh, 2024. Hämtad från YouTube, LindhCoding.
 const getAllTodos = async() => {
-    let url = 'https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c';
+    const url = 'https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c';
 
     try {
         const response = await fetch (url);
         console.log(response);
 
         if(response.status == 200) {
-            console.log('Status 201, to-do created');
+            console.log('GET request OK');
         } else {
             throw new Error ('Something went wrong.');
         }
@@ -137,13 +171,45 @@ const postTodo = async (objTitle) => {
         return data;
     }
 
+const updateTodo = async (obj) => {
+    let post = {
+        completed: true
+    }
+    console.log(post);
+    console.log(obj);
+    let bla = obj.id;
+    console.log(bla)
+
+        const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${bla}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type' : 'application/json' 
+        },
+        body : JSON.stringify(post)
+    })
+        console.log(response);
+
+        if(response.status == 200) {
+            // obj.checked = true;
+            // document.getElementById(bla).checked = true;
+            // document.getElementsByTagName('input').checked = true;
+            console.log('Status 200, to-do updated');
+        } else {
+            throw new Error ('Something went wrong.');
+        }
+        const data = await response.json()
+        return data;
+    }
+
 const removeTodo = async (id) => {
-    const bla = id._id;
-    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${bla}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
+    const obj = id._id;
+    const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${obj}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
         method: 'DELETE',
     })
 
-    if(response.status !== 200) {
+    if(response.status == 200) {
+        console.log('Status 200, deleting to-do');
+    } else {
         throw new Error ('Something went wrong.');
     }
     console.log(response);
@@ -153,6 +219,54 @@ const removeTodo = async (id) => {
     return data;
 }
 
+// -----EVENT LISTENERS-----
+const btnCreate = document.getElementById('btnCreate');
+btnCreate.addEventListener('click', (e) => {
+    e.preventDefault();
+    validateInput();
+})
+
+const btnDelete = document.getElementById('btnDelete');
+btnDelete.addEventListener('click', (e) => {
+    e.preventDefault();
+    validateSearch();
+})
+
+setTimeout(listenIfChecked, 1000);
+
+//Kod tagen från thordarson på Stackoverflow: 
+//https://stackoverflow.com/questions/14544104/checkbox-check-event-listener
+function listenIfChecked() {
+
+// Select all checkboxes with the name 'settings' using querySelectorAll.
+var checkboxes = document.querySelectorAll("input[type=checkbox]");
+(console.log(checkboxes));
+let completedTodos = []
+
+/*
+For IE11 support, replace arrow functions with normal functions and
+use a polyfill for Array.forEach:
+https://vanillajstoolkit.com/polyfills/arrayforeach/
+*/
+
+// Use Array.forEach to add an event listener to each checkbox.
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+          completedTodos = 
+            Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+            .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
+            .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
+            
+          console.log(completedTodos);
+          updateTodo(checkbox);
+        })  
+      });
+}
+
+// -----VALIDERING-----
+
+//Valideringvideon del 1 19:30
+
 //från https://stackoverflow.com/questions/78245676/nextjs-post-neterr-aborted-500-internal-server-error
 // You have to always return a Response by:
 // return new Response("message", {status: 200})
@@ -160,8 +274,6 @@ const removeTodo = async (id) => {
 // return Response.json({...}, {status: 200})
 // return NextResponse.json({...}, {status: 200})
 
-
-// ----VALIDERING----
 //Triggas vid klick på knappen Create to-do
 const validateInput = () => {
     console.log('validateInput()');
@@ -239,4 +351,3 @@ const removeErrorDeleteTodo = () => {
     form.classList.remove('error');
     return;
 }
-//Valideringvideon del 1 19:30
