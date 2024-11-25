@@ -4,73 +4,87 @@ const posts = [];
 let completedTodos = [];
 
 // -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
-//Adderar objekt (to-do's) från API:ets array till egen array Posts[] och visar på hemsidan
+const displayDate = () => {
+    let today = new Date();
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('date').textContent = today.toDateString(("en-US", options));
+}
+displayDate();
+
+//Adderar objekt (to-do's) från API:ets array till egen array posts[] och visar på hemsidan
 function renderPosts() {
     let list = document.getElementById('list1');
     posts.forEach(obj => {
-        let div = document.createElement('div');
+        let li = document.createElement('li');
         let label = document.createElement('label')
         let item = document.createElement('input');
 
-        div.setAttribute("class", "form-check-div");
-        label.setAttribute("for", "flexCheckDefault");
+        li.setAttribute("class", "form-check-div mt-3");
+        label.setAttribute("for", obj._id);
+        label.setAttribute("class", "flexCheckLabel");
         item.setAttribute("type", "checkbox");
         item.setAttribute("id", obj._id);
         item.setAttribute("class", "form-check-input");
 
-        list.appendChild(div);
-        div.appendChild(label);
-        div.appendChild(item);
+        list.appendChild(li);
+        li.appendChild(label);
+        li.appendChild(item);
         label.innerText = obj.title;
     })
 }
-
-function check() {
-    console.log('Checking completed to-dos...');
-    var checkboxes = document.querySelectorAll("input[type=checkbox]");
-
-            posts.forEach(obj => {
-                    if(obj.completed == true) {
-                    document.getElementById(obj._id).checked= true;
-                        completedTodos = 
-                          Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
-                          .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
-                          .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
-                          
-                } else if (obj.completed !=true) {
-                    document.getElementById(obj._id).checked= false;
-                    completedTodos = 
-                          Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
-                          .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
-                          .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
-                }
-            })
-            console.log('Completed / checked to-dos: ' + completedTodos.length);
-            console.log('Completed to-dos successfully displayed');
-        }
 
 const createTodo = (obj) => {
     const list = document.getElementById('list1');
     const title = document.getElementById('title').value;
 
-    let div = document.createElement('div');
+    let li = document.createElement('li');
     let label = document.createElement('label')
     let item = document.createElement('input');
 
-    div.setAttribute("class", "form-check-div");
-    label.setAttribute("for", "flexCheckDefault");
+    li.setAttribute("class", "form-check-div mt-2");
+    label.setAttribute("for", obj);
+    label.setAttribute("class", "flexCheckLabel");
     item.setAttribute("type", "checkbox");
     item.setAttribute("id", obj);
     item.setAttribute("class", "form-check-input");
 
-    list.appendChild(div);
-    div.appendChild(label);
-    div.appendChild(item);
+    list.appendChild(li);
+    li.appendChild(label);
+    li.appendChild(item);
     label.innerText = title;
     
     console.log('createTodo() done. Title value is ' + title);
     postTodo(title);
 }
+
+function checkBoxes() {
+    console.log('Checking completed to-dos...');
+    let checkboxes = document.querySelectorAll("input[type=checkbox]");
+            posts.forEach(obj => {
+                if(obj.completed == true) {
+                    document.getElementById(obj._id).checked = true;
+
+                    completedTodos = 
+                        Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+                        .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
+                        .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
+                } 
+            })
+            console.log('Completed / checked to-dos: ' + completedTodos.length);
+            console.log('Completed to-dos successfully displayed');
+        }
+
+const closeModal = () => {
+    const modal = document.getElementById('myModal');
+    modal.style.display = 'none';
+    removeErrorClass();
+}
+
+const openModal = () => {
+    const modal = document.getElementById('myModal');
+    modal.style.display = 'block';
+}
+
 
 // -----HTTP METODER-----
 //Funktion med kod från Joakim Lindh, 2024. Hämtad från YouTube, LindhCoding.
@@ -90,6 +104,7 @@ const getAllTodos = async() => {
 
         data.forEach(post => posts.push(post));
         renderPosts();
+        listenIfChecked();
 
         //Arrayen med data från API:et
         console.log(data);
@@ -125,6 +140,7 @@ const postTodo = async (objTitle) => {
             throw new Error ('Something went wrong.');
         }
         const data = await response.json()
+        window.location.reload();
         return data;
     }
 
@@ -144,15 +160,17 @@ const updateTodo = async (obj) => {
         console.log(response);
         if(response.status == 200) {
             console.log('Status 200, to-do updated');
-            if(post.completed != true) {
+            if(obj.checked != true) {
                 console.log('To-do with id ' + todo + ' completed == false');
-            } else if (post.completed == true) {
+            } else if (obj.checked == true) {
                 console.log('To-do with id ' + todo + ' completed == true');
             }
             } else {
                 throw new Error ('Something went wrong.');
             }
         const data = await response.json()
+        console.log('Updated todo with id:' + todo);
+        window.location.reload();
         return data;
     }
 
@@ -163,7 +181,12 @@ const removeTodo = async (obj) => {
     })
 
     if(response.status == 200) {
-        console.log('Status 200, deleting to-do');
+        console.log('Status 200, deleting to-do if completed...');
+        if(obj.completed != true) {
+            console.log('Sorry, to-do with id ' + todo + ' completed == false');
+        } else if (obj.completed == true) {
+            console.log('To-do with id ' + todo + ' completed == true');
+        }
     } else {
         throw new Error ('Something went wrong.');
     }
@@ -171,7 +194,7 @@ const removeTodo = async (obj) => {
     const data = await response.json();
     console.log('Deleted todo with id:' + data);
     window.location.reload();
-    return data;
+    // return data;
 }
 
 // -----EVENT LISTENERS-----
@@ -184,20 +207,14 @@ btnCreate.addEventListener('click', (e) => {
 const btnDelete = document.getElementById('btnDelete');
 btnDelete.addEventListener('click', (e) => {
     e.preventDefault();
-    validateSearch();
+    validateSearch(e);
 })
 
-setTimeout(listenIfChecked, 1000);
-
-//Kod tagen från thordarson på Stackoverflow: 
-//https://stackoverflow.com/questions/14544104/checkbox-check-event-listener
+//Kod från thordarson på Stackoverflow. 2024-11-19. URL: https://stackoverflow.com/questions/14544104/checkbox-check-event-listener
 function listenIfChecked() {
 
 // Select all checkboxes with the name 'settings' using querySelectorAll.
-var checkboxes = document.querySelectorAll("input[type=checkbox]");
-(console.log(checkboxes));
-// let completedTodos = []
-
+let checkboxes = document.querySelectorAll("input[type=checkbox]");
 /*
 For IE11 support, replace arrow functions with normal functions and
 use a polyfill for Array.forEach:
@@ -211,18 +228,28 @@ https://vanillajstoolkit.com/polyfills/arrayforeach/
             Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
             .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
             .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
-            
+
         console.log('Completed / checked to-dos: ' + completedTodos.length);
-          updateTodo(checkbox);
-          
+        updateTodo(checkbox);      
         })  
       });
-      check();
+      checkBoxes();
 }
+
+const closeBtn = document.getElementById('closeBtn');
+    closeBtn.addEventListener('click', () => {
+        closeModal();
+})
+
+const xBtn = document.getElementById('xBtn');
+    xBtn.addEventListener('click', () => {
+        closeModal();
+})
 
 // -----VALIDERING-----
 
-//Valideringvideon del 1 19:30
+//Valideringvideon del 1 19:30, 49:00, 1:00:00
+//Valideringvideon del 2 
 
 //från https://stackoverflow.com/questions/78245676/nextjs-post-neterr-aborted-500-internal-server-error
 // You have to always return a Response by:
@@ -236,10 +263,10 @@ const validateInput = () => {
     console.log('validateInput()');
     const title = document.getElementById('title');
 
-    if(title.value === '' || title.length < 0 || title == null) {
+    if(title.value === '' || title.length < 0 || title == null || title.value.replace(/\s+/g, '').length == 0) {
         addErrorCreateTodo();
     } else {
-        removeErrorCreateTodo();
+        removeErrorClass();
         createTodo();
     }
 }
@@ -247,13 +274,19 @@ const validateInput = () => {
 //Triggas vid klick på knappen Delete to-do
 const validateSearch = () => {
     console.log('validateSearch()');
-    const search = document.getElementById('search').value;
+    let search = document.getElementById('search').value;
 
     let matched;
     posts.filter(obj => {
         if (obj.title == search) {
-            removeErrorDeleteTodo();
-            removeTodo(obj);
+            removeErrorClass();
+            if(obj.completed != true) {
+                console.log('To-do with id ' + obj + ' completed == false');
+                openModal();
+            } else if (obj.completed == true) {
+                console.log('To-do with id ' + obj + ' completed == true');
+                removeTodo(obj);
+            }
             matched = true;
         } else {
             matched = false;
@@ -281,18 +314,10 @@ const addErrorDeleteTodo = () => {
     return;
 }
 
-const removeErrorCreateTodo = () => {
-    console.log('removeErrorCreateTodo()');
-
-    const form = document.getElementById('createTodo');
-    form.classList.remove('error');
-    return;
-}
-
-const removeErrorDeleteTodo = () => {
-    console.log('removeErrorDeleteTodo()');
-
-    const form = document.getElementById('deleteTodo');
-    form.classList.remove('error');
+const removeErrorClass = () => {
+    const form = document.getElementById('form');
+    for(let i = 0; i < form.length; i++) {
+        form[i].parentElement.classList.remove('error');
+    }
     return;
 }
