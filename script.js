@@ -1,19 +1,17 @@
 //Array som hämtar alla data från arrayen i API:et. Används för att kunna display
 const posts = [];
-//Array innehållande ifyllda checkboxar (completed to-dos)
-let completedTodos = [];
 
 // -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
 const displayDate = () => {
     let today = new Date();
-    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('date').textContent = today.toDateString(("en-US", options));
+    document.getElementById('date').textContent = today.toDateString(("en-US"));
 }
 displayDate();
 
 //Adderar objekt (to-do's) från API:ets array till egen array posts[] och visar på hemsidan
 function renderPosts() {
     let list = document.getElementById('list1');
+
     posts.forEach(obj => {
         let li = document.createElement('li');
         let label = document.createElement('label')
@@ -30,7 +28,27 @@ function renderPosts() {
         li.appendChild(label);
         li.appendChild(item);
         label.innerText = obj.title;
-    })
+
+        if(obj.completed == true) {
+            item.checked = true;
+            console.log(obj.title + ' (id: ' + obj._id + ') is completed');
+            label.classList.add("text-decoration-line-through") 
+        } else {
+            item.checked = false;
+            label.classList.remove("text-decoration-line-through") 
+        }
+
+            item.addEventListener('change', (e) => {
+                if(e.target.checked) { 
+                    obj.completed = true;      
+                    label.classList.add("text-decoration-line-through")
+                } else {
+                    obj.completed = false;
+                    label.classList.remove("text-decoration-line-through");
+                }   
+            updateTodo(item);      
+            })  
+        })
 }
 
 const createTodo = (obj) => {
@@ -57,23 +75,6 @@ const createTodo = (obj) => {
     postTodo(title);
 }
 
-function checkBoxes() {
-    console.log('Checking completed to-dos...');
-    let checkboxes = document.querySelectorAll("input[type=checkbox]");
-            posts.forEach(obj => {
-                if(obj.completed == true) {
-                    document.getElementById(obj._id).checked = true;
-
-                    completedTodos = 
-                        Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
-                        .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
-                        .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
-                } 
-            })
-            console.log('Completed / checked to-dos: ' + completedTodos.length);
-            console.log('Completed to-dos successfully displayed');
-        }
-
 const closeModal = () => {
     const modal = document.getElementById('myModal');
     modal.style.display = 'none';
@@ -84,7 +85,6 @@ const openModal = () => {
     const modal = document.getElementById('myModal');
     modal.style.display = 'block';
 }
-
 
 // -----HTTP METODER-----
 //Funktion med kod från Joakim Lindh, 2024. Hämtad från YouTube, LindhCoding.
@@ -104,12 +104,8 @@ const getAllTodos = async() => {
 
         data.forEach(post => posts.push(post));
         renderPosts();
-        listenIfChecked();
 
-        //Arrayen med data från API:et
         console.log(data);
-
-        //Egen array posts []
         console.log(posts);
 
     } catch (err) {
@@ -144,6 +140,16 @@ const postTodo = async (objTitle) => {
         return data;
     }
 
+// const setCompletedTrue = (obj) => {
+//     obj.completed == true;
+// }
+
+
+// const setCompletedFalse = (obj) => {
+//     obj.completed == false;
+// }
+
+
 const updateTodo = async (obj) => {
     let post = {
         completed: obj.checked
@@ -158,27 +164,34 @@ const updateTodo = async (obj) => {
         body : JSON.stringify(post)
     })
         console.log(response);
+
         if(response.status == 200) {
             console.log('Status 200, to-do updated');
             if(obj.checked != true) {
+                obj.completed = false;
                 console.log('To-do with id ' + todo + ' completed == false');
             } else if (obj.checked == true) {
+                obj.completed = true;
                 console.log('To-do with id ' + todo + ' completed == true');
             }
             } else {
                 throw new Error ('Something went wrong.');
             }
+
         const data = await response.json()
         console.log('Updated todo with id:' + todo);
-        window.location.reload();
         return data;
     }
+
+    //en update metod för ändra till completed true en för att uppdatera objektet i parametern till completed false. samma. 
 
 const removeTodo = async (obj) => {
     const todo = obj._id;
     const response = await fetch(`https://js1-todo-api.vercel.app/api/todos/${todo}?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c`, {
         method: 'DELETE',
     })
+
+    console.log(obj.completed + 'hej')
 
     if(response.status == 200) {
         console.log('Status 200, deleting to-do if completed...');
@@ -194,7 +207,6 @@ const removeTodo = async (obj) => {
     const data = await response.json();
     console.log('Deleted todo with id:' + data);
     window.location.reload();
-    // return data;
 }
 
 // -----EVENT LISTENERS-----
@@ -204,37 +216,48 @@ btnCreate.addEventListener('click', (e) => {
     validateInput();
 })
 
+let search;
+
 const btnDelete = document.getElementById('btnDelete');
-btnDelete.addEventListener('click', (e) => {
-    e.preventDefault();
-    validateSearch(e);
+btnDelete.addEventListener('click', () => {
+
+    search = document.getElementById('search').value;
+    let matched = false;
+
+    posts.filter(obj => {
+
+        if (obj.title == search) {
+            removeErrorClass();         
+
+                if(!obj.completed) {
+                    matched = true;
+                    console.log('To-do with id ' + obj + ' completed == false');
+                    openModal();
+                    return;
+                } else {
+                    matched = true;
+                    console.log('To-do with id ' + obj + ' completed == true');
+                    removeTodo(obj); 
+                    return;       
+                }
+            }
+    })
+    console.log(posts);
+    
+    if(matched == false) {
+        addErrorDeleteTodo();
+    } else {
+        removeErrorClass();   
+    }
+     // validateSearch(search);
 })
 
-//Kod från thordarson på Stackoverflow. 2024-11-19. URL: https://stackoverflow.com/questions/14544104/checkbox-check-event-listener
-function listenIfChecked() {
 
-// Select all checkboxes with the name 'settings' using querySelectorAll.
-let checkboxes = document.querySelectorAll("input[type=checkbox]");
-/*
-For IE11 support, replace arrow functions with normal functions and
-use a polyfill for Array.forEach:
-https://vanillajstoolkit.com/polyfills/arrayforeach/
-*/
-
-// Use Array.forEach to add an event listener to each checkbox.
-    checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-          completedTodos = 
-            Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
-            .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
-            .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
-
-        console.log('Completed / checked to-dos: ' + completedTodos.length);
-        updateTodo(checkbox);      
-        })  
-      });
-      checkBoxes();
-}
+// const btnDelete = document.getElementById('btnDelete');
+// btnDelete.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     validateSearch(e);
+// })
 
 const closeBtn = document.getElementById('closeBtn');
     closeBtn.addEventListener('click', () => {
@@ -251,13 +274,6 @@ const xBtn = document.getElementById('xBtn');
 //Valideringvideon del 1 19:30, 49:00, 1:00:00
 //Valideringvideon del 2 
 
-//från https://stackoverflow.com/questions/78245676/nextjs-post-neterr-aborted-500-internal-server-error
-// You have to always return a Response by:
-// return new Response("message", {status: 200})
-// return new NextResponse("message", {status: 200})
-// return Response.json({...}, {status: 200})
-// return NextResponse.json({...}, {status: 200})
-
 //Triggas vid klick på knappen Create to-do
 const validateInput = () => {
     console.log('validateInput()');
@@ -272,31 +288,31 @@ const validateInput = () => {
 }
 
 //Triggas vid klick på knappen Delete to-do
-const validateSearch = () => {
-    console.log('validateSearch()');
-    let search = document.getElementById('search').value;
+// const validateSearch = (obj) => {
+//     console.log('validateSearch()');
+//     let search = document.getElementById('search').value;
 
-    let matched;
-    posts.filter(obj => {
-        if (obj.title == search) {
-            removeErrorClass();
-            if(obj.completed != true) {
-                console.log('To-do with id ' + obj + ' completed == false');
-                openModal();
-            } else if (obj.completed == true) {
-                console.log('To-do with id ' + obj + ' completed == true');
-                removeTodo(obj);
-            }
-            matched = true;
-        } else {
-            matched = false;
-        }
-    })
+//     let matched;
+//     posts.filter(obj => {
+//         if (obj.title == search) {
+//             removeErrorClass();
+//             if(obj.completed != true) {
+//                 console.log('To-do with id ' + obj + ' completed == false');
+//                 openModal();
+//             } else if (obj.completed == true) {
+//                 console.log('To-do with id ' + obj + ' completed == true');
+//                 removeTodo(obj);
+//             }
+//             matched = true;
+//         } else {
+//             matched = false;
+//         }
+//     })
     
-    if(matched == false) {
-        addErrorDeleteTodo();
-    }
-}
+//     if(matched == false) {
+//         addErrorDeleteTodo();
+//     }
+// }
 
 const addErrorCreateTodo = () => {
     console.log('addErrorCreateTodo()');
