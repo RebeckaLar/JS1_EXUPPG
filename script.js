@@ -1,16 +1,15 @@
-//Array som hämtar alla data från arrayen i API:et. Används för att kunna display
+//Array with fetched data. Used to display posts from the database.
 const posts = [];
 
-// -----METODER FÖR ATT SKAPA ELLER RENDERA OBJEKT-----
+// -----RENDERING OR CREATING OBJECTS-----
 const displayDate = () => {
     let today = new Date();
     document.getElementById('date').textContent = today.toDateString(("en-US"));
 }
 displayDate();
 
-//Adderar objekt (to-do's) från API:ets array till egen array posts[] och visar på hemsidan
 function renderPosts() {
-    let list = document.getElementById('list1');
+    let list = document.getElementById('list');
 
     posts.forEach(obj => {
         let li = document.createElement('li');
@@ -52,7 +51,7 @@ function renderPosts() {
 }
 
 const createTodo = (obj) => {
-    const list = document.getElementById('list1');
+    const list = document.getElementById('list');
     const title = document.getElementById('title').value;
 
     let li = document.createElement('li');
@@ -86,8 +85,9 @@ const openModal = () => {
     modal.style.display = 'block';
 }
 
-// -----HTTP METODER-----
-//Funktion med kod från Joakim Lindh, 2024. Hämtad från YouTube, LindhCoding.
+// -----HTTP REQUESTS-----
+
+//Code from Joakim Lindh. 2024-11-13. From YouTube, LindhCoding. URL: https://youtu.be/bkIbBtkddxc?si=64MQjyFfdp_1CxZv
 const getAllTodos = async() => {
     const url = 'https://js1-todo-api.vercel.app/api/todos?apikey=1a450641-7efe-4a0f-bcb3-7e9f93cca42c';
 
@@ -100,12 +100,11 @@ const getAllTodos = async() => {
         } else {
             throw new Error ('Something went wrong.');
         }
+       
         const data = await response.json()
-
         data.forEach(post => posts.push(post));
         renderPosts();
 
-        console.log(data);
         console.log(posts);
 
     } catch (err) {
@@ -114,7 +113,6 @@ const getAllTodos = async() => {
 }
 getAllTodos();
 
-//Triggas efter genomfört validateInput();
 const postTodo = async (objTitle) => {
     let post = {
         title : objTitle
@@ -137,18 +135,7 @@ const postTodo = async (objTitle) => {
         }
         const data = await response.json()
         window.location.reload();
-        return data;
     }
-
-// const setCompletedTrue = (obj) => {
-//     obj.completed == true;
-// }
-
-
-// const setCompletedFalse = (obj) => {
-//     obj.completed == false;
-// }
-
 
 const updateTodo = async (obj) => {
     let post = {
@@ -167,23 +154,14 @@ const updateTodo = async (obj) => {
 
         if(response.status == 200) {
             console.log('Status 200, to-do updated');
-            if(obj.checked != true) {
-                obj.completed = false;
-                console.log('To-do with id ' + todo + ' completed == false');
-            } else if (obj.checked == true) {
-                obj.completed = true;
-                console.log('To-do with id ' + todo + ' completed == true');
-            }
+            checkCompleted(obj);
             } else {
                 throw new Error ('Something went wrong.');
             }
 
-        const data = await response.json()
+        await response.json()
         console.log('Updated todo with id:' + todo);
-        return data;
     }
-
-    //en update metod för ändra till completed true en för att uppdatera objektet i parametern till completed false. samma. 
 
 const removeTodo = async (obj) => {
     const todo = obj._id;
@@ -195,11 +173,7 @@ const removeTodo = async (obj) => {
 
     if(response.status == 200) {
         console.log('Status 200, deleting to-do if completed...');
-        if(obj.completed != true) {
-            console.log('Sorry, to-do with id ' + todo + ' completed == false');
-        } else if (obj.completed == true) {
-            console.log('To-do with id ' + todo + ' completed == true');
-        }
+        checkCompleted(obj);
     } else {
         throw new Error ('Something went wrong.');
     }
@@ -217,7 +191,6 @@ btnCreate.addEventListener('click', (e) => {
 })
 
 let search;
-
 const btnDelete = document.getElementById('btnDelete');
 btnDelete.addEventListener('click', () => {
 
@@ -225,39 +198,27 @@ btnDelete.addEventListener('click', () => {
     let matched = false;
 
     posts.filter(obj => {
-
         if (obj.title == search) {
             removeErrorClass();         
 
                 if(!obj.completed) {
                     matched = true;
-                    console.log('To-do with id ' + obj + ' completed == false');
                     openModal();
                     return;
                 } else {
                     matched = true;
-                    console.log('To-do with id ' + obj + ' completed == true');
                     removeTodo(obj); 
                     return;       
                 }
             }
     })
-    console.log(posts);
-    
+
     if(matched == false) {
         addErrorDeleteTodo();
     } else {
         removeErrorClass();   
     }
-     // validateSearch(search);
 })
-
-
-// const btnDelete = document.getElementById('btnDelete');
-// btnDelete.addEventListener('click', (e) => {
-//     e.preventDefault();
-//     validateSearch(e);
-// })
 
 const closeBtn = document.getElementById('closeBtn');
     closeBtn.addEventListener('click', () => {
@@ -269,12 +230,8 @@ const xBtn = document.getElementById('xBtn');
         closeModal();
 })
 
-// -----VALIDERING-----
-
-//Valideringvideon del 1 19:30, 49:00, 1:00:00
-//Valideringvideon del 2 
-
-//Triggas vid klick på knappen Create to-do
+// -----VALIDATION-----
+//Triggered when Create to-do button is pressed
 const validateInput = () => {
     console.log('validateInput()');
     const title = document.getElementById('title');
@@ -286,33 +243,6 @@ const validateInput = () => {
         createTodo();
     }
 }
-
-//Triggas vid klick på knappen Delete to-do
-// const validateSearch = (obj) => {
-//     console.log('validateSearch()');
-//     let search = document.getElementById('search').value;
-
-//     let matched;
-//     posts.filter(obj => {
-//         if (obj.title == search) {
-//             removeErrorClass();
-//             if(obj.completed != true) {
-//                 console.log('To-do with id ' + obj + ' completed == false');
-//                 openModal();
-//             } else if (obj.completed == true) {
-//                 console.log('To-do with id ' + obj + ' completed == true');
-//                 removeTodo(obj);
-//             }
-//             matched = true;
-//         } else {
-//             matched = false;
-//         }
-//     })
-    
-//     if(matched == false) {
-//         addErrorDeleteTodo();
-//     }
-// }
 
 const addErrorCreateTodo = () => {
     console.log('addErrorCreateTodo()');
@@ -336,4 +266,14 @@ const removeErrorClass = () => {
         form[i].parentElement.classList.remove('error');
     }
     return;
+}
+
+const checkCompleted = (obj) => {
+    if(obj.checked != true) {
+        obj.completed = false;
+        console.log('To-do completed == false');
+    } else if (obj.checked == true) {
+        obj.completed = true;
+        console.log('To-do completed == true');
+    }
 }
