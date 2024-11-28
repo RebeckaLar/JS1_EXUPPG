@@ -11,3 +11,6 @@ Created in Visual Studio Code.
 
 ![Screenshot of a simple and functional To-do Application, containing a list of example to-do's.](https://github.com/user-attachments/assets/165c568a-b8c5-4ce2-8034-002a403ab7b7)
 
+## Purpose
+To apply my knowledge about basic JavaScipt, DOM-manipulation, and asynchronous communication with an external server to build a functional To-do-application. An API made by Joakim Lindh was used to fetch data.
+
